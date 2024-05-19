@@ -46,6 +46,9 @@ public class HomeController {
     }
 
     public List<Product> searchProduct (String input) {
-        return null;
+		// use input to search the database for products
+        var query = em.createQuery("SELECT p FROM Product p WHERE lower(p.productName) LIKE :input", Product.class);
+        query.setParameter("input", "%" + input.toLowerCase() + "%");
+        return query.getResultList();
     }
 }

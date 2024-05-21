@@ -11,6 +11,4 @@ jobs:
       image: alpine:3.19.1
 
     steps:
-      - run: ls /etc/
-      - run: uname -a
       - run: cat /etc/os-release

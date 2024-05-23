@@ -1,0 +1,50 @@
+name: run-unit-tests-and-build-image/main
+on:
+  workflow_dispatch:
+jobs:
+  run_unit_tests:
+    name: run unit tests
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - name: sh
+      shell: bash
+      run: mvn test
+    - name: echo message
+      run: echo Successfully executed unit tests.
+  build_image:
+    name: build image
+    runs-on: ubuntu-latest
+    needs: run_unit_tests
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - name: sh
+      shell: bash
+      run: mvn package -DskipTests
+    - name: echo message
+      run: echo Successfully compiled source code.
+    - name: sh
+      shell: bash
+      run: docker build -t coffeeshop:latest .
+    - name: echo message
+      run: echo Successfully built container image.
+    - name: sh
+      shell: bash
+      run: docker tag coffeeshop:latest 471112717199.dkr.ecr.eu-north-1.amazonaws.com/coffeeshop:latest
+      env:
+        USER: "${{ secrets.CR_USER }}"
+        PASSWORD: "${{ secrets.CR_PASSWORD }}"
+    - name: sh
+      shell: bash
+      run: /bin/bash -c "echo -n ${{ env.PASSWORD }} | docker login -u ${{ env.USER }} --password-stdin 471112717199.dkr.ecr.eu-north-1.amazonaws.com"
+      env:
+        USER: "${{ secrets.CR_USER }}"
+        PASSWORD: "${{ secrets.CR_PASSWORD }}"
+    - name: sh
+      shell: bash
+      run: docker push 471112717199.dkr.ecr.eu-north-1.amazonaws.com/coffeeshop:latest
+      env:
+        USER: "${{ secrets.CR_USER }}"
+        PASSWORD: "${{ secrets.CR_PASSWORD }}"

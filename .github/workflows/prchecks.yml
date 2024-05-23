@@ -6,7 +6,12 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        java-version: [11, 19]
+        
+    runs-on: ${{ matrix.os }}
 
     steps:
 
@@ -17,7 +22,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: ${{ matrix.java-version }}
 
       - name: Run Unit Tests
         run: mvn test
